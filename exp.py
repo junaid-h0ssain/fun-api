@@ -4,8 +4,9 @@ from main import FunAPI
 funapi = FunAPI()
 
 @funapi.get("/users/{id}")
-def get_users(req, res):
-    res.send("['welcome','from','funapi']", 202)
+def get_users(req, res, id):
+    # res.send("['welcome','from','funapi']", 202)
+    res.send(id, "200")
 
 @funapi.post("/users")
 def create_user(req, res):

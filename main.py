@@ -14,9 +14,10 @@ class FunAPI:
         response = Response()
         for path, handlerDict in self.routes.items():
             res = parse(path, environ["PATH_INFO"])
+
             for requestMethod, handler in handlerDict.items():
-                if path == environ["PATH_INFO"] and requestMethod == environ["REQUEST_METHOD"]:
-                    handler(environ, response)
+                if res and requestMethod == environ["REQUEST_METHOD"]:
+                    handler(environ, response, **res.named)
                     response.as_wsgi(start_response)
                     return [response.text.encode()]
         
