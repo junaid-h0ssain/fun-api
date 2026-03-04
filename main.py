@@ -1,19 +1,22 @@
 
 
 
+from typing import Any
+from response import Response
+
 
 class FunAPI:
     def __init__(self):
         self.routes = dict()
 
     def __call__(self, environ, start_response):
-        response = {}
+        response = Response()
         for path, handlerDict in self.routes.items():
             for requestMethod, handler in handlerDict.items():
                 if path == environ["PATH_INFO"] and requestMethod == environ["REQUEST_METHOD"]:
                     handler(environ, response)
-                    start_response(response['status_code'], headers=response['headers'])
-                    return [response['text'].encode()]
+                    start_response(response.status_code, headers=response.headers)
+                    return [response.text.encode()]
                 
 
 
