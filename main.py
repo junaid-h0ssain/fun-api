@@ -70,3 +70,16 @@ class FunAPI:
     def delete(self, path=None, middleware=[]):
         return self.common_handler(path=path, method="DELETE", middleware=middleware)
             
+
+    def routes(self, path=None,middleware=[]):
+        def wrapper(handler):
+            if isinstance(handler, type):
+                pathName = path or f"/{handler.__name__.lower()}"
+                methods = ["GET", "POST", "PUT", "DELETE"]
+
+                for method in methods:
+                    if hasattr(handler, method.lower()):
+                        method_handler = getattr(handler, method.lower())
+                        self.common_handler(path=pathName, method=method, middleware=middleware)(method_handler)
+
+        return wrapper            
