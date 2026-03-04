@@ -9,7 +9,11 @@ class Response:
             self.text = text
         else:
             self.text = str(text)
-        self.status_code = status_code
+
+        if isinstance(status_code, int):
+            self.status_code = str(status_code)
+        else:
+            self.status_code = status_code
 
     def as_wsgi(self, start_response):
         start_response(self.status_code, headers=self.headers)

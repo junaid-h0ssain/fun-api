@@ -32,3 +32,42 @@ class FunAPI:
             print(self.routes)
 
         return wrapper
+    
+    def post(self, path=None):
+        def wrapper(handler):
+            pathName = path or f"/{handler.__name__}"
+
+            if pathName not in self.routes: 
+                self.routes[pathName] = {}
+
+            self.routes[pathName]["POST"] = handler
+            
+            print(self.routes)
+
+        return wrapper
+    
+    def put(self, path=None):
+        def wrapper(handler):
+            pathName = path or f"/{handler.__name__}"
+
+            if pathName not in self.routes: 
+                self.routes[pathName] = {}
+
+            self.routes[pathName]["PUT"] = handler
+            
+            print(self.routes)
+
+        return wrapper
+    
+    def delete(self, path=None):
+        def wrapper(handler):
+            pathName = path or f"/{handler.__name__}"
+
+            if pathName not in self.routes: 
+                self.routes[pathName] = {}
+
+            self.routes[pathName]["DELETE"] = handler
+            
+            print(self.routes)
+
+        return wrapper
