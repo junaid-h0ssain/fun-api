@@ -1,9 +1,15 @@
 from main import FunAPI
 
 
-funapi = FunAPI()
+def my_middleware(res):
+    print("Middleware works")
 
-@funapi.get("/users/{id}")
+def another_middleware_local(res):
+    print("Another Middleware works")
+
+funapi = FunAPI(middleware=[my_middleware])
+
+@funapi.get("/users/{id}", middleware=[another_middleware_local])
 def get_users(req, res, id):
     # res.send("['welcome','from','funapi']", 202)
     res.send(id, "200")
@@ -19,4 +25,5 @@ def update_user(req, res):
 @funapi.delete("/users")
 def delete_user(req, res):
     res.send("User Deleted", "200")
+
 
