@@ -18,56 +18,30 @@ class FunAPI:
                     response.as_wsgi(start_response)
                     return [response.text.encode()]
                 
+    def common_handler(self, path=None, method=None):
+        def wrapper(handler):
+            pathName = path or f"/{handler.__name__}"
+
+            if pathName not in self.routes: 
+                self.routes[pathName] = {}
+
+            self.routes[pathName][method] = handler
+            
+            print(self.routes)
+
+        return wrapper
+                
 
 
     def get(self, path=None):
-        def wrapper(handler):
-            pathName = path or f"/{handler.__name__}"
-
-            if pathName not in self.routes: 
-                self.routes[pathName] = {}
-
-            self.routes[pathName]["GET"] = handler
-            
-            print(self.routes)
-
-        return wrapper
+        return self.common_handler(path=path, method="GET")
     
     def post(self, path=None):
-        def wrapper(handler):
-            pathName = path or f"/{handler.__name__}"
-
-            if pathName not in self.routes: 
-                self.routes[pathName] = {}
-
-            self.routes[pathName]["POST"] = handler
-            
-            print(self.routes)
-
-        return wrapper
+        return self.common_handler(path=path, method="POST")
     
     def put(self, path=None):
-        def wrapper(handler):
-            pathName = path or f"/{handler.__name__}"
-
-            if pathName not in self.routes: 
-                self.routes[pathName] = {}
-
-            self.routes[pathName]["PUT"] = handler
-            
-            print(self.routes)
-
-        return wrapper
+        return self.common_handler(path=path, method="PUT")
     
     def delete(self, path=None):
-        def wrapper(handler):
-            pathName = path or f"/{handler.__name__}"
-
-            if pathName not in self.routes: 
-                self.routes[pathName] = {}
-
-            self.routes[pathName]["DELETE"] = handler
+        return self.common_handler(path=path, method="DELETE")
             
-            print(self.routes)
-
-        return wrapper
