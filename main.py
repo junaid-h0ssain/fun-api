@@ -3,6 +3,7 @@
 
 from typing import Any
 from response import Response
+from parse import parse
 
 
 class FunAPI:
@@ -12,11 +13,15 @@ class FunAPI:
     def __call__(self, environ, start_response):
         response = Response()
         for path, handlerDict in self.routes.items():
+            res = parse(path, environ["PATH_INFO"])
             for requestMethod, handler in handlerDict.items():
                 if path == environ["PATH_INFO"] and requestMethod == environ["REQUEST_METHOD"]:
                     handler(environ, response)
                     response.as_wsgi(start_response)
                     return [response.text.encode()]
+        
+        response.as_wsgi(start_response)
+        return [response.text.encode()]
                 
     def common_handler(self, path=None, method=None):
         def wrapper(handler):

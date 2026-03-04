@@ -6,4 +6,5 @@ readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "gunicorn>=25.1.0",
+    "parse>=1.21.1",
 ]

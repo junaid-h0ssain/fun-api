@@ -3,7 +3,7 @@ from main import FunAPI
 
 funapi = FunAPI()
 
-@funapi.get("/users")
+@funapi.get("/users/{id}")
 def get_users(req, res):
     res.send("['welcome','from','funapi']", 202)
 
