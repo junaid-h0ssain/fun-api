@@ -1,6 +1,6 @@
 # FunAPI
 
-A minimal, decorator-based Python web framework built on top of the WSGI standard — written from scratch to understand how frameworks like Flask actually work under the hood.
+A minimal, decorator-based Python web framework built on top of the WSGI standard — written from scratch to understand how frameworks like Flask actually work under the hood. This project is inspired by the [Revant Ranawat](https://youtu.be/hA7s-WMFzSE) and the desire to build a micro-framework in under 100 lines of code.
 
 ---
 
