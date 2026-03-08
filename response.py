@@ -46,3 +46,17 @@ class Response:
 
         start_response(self.status_code, headers=headers)
         return body
+    
+    def render(self, template_name, context={}):
+        path = f"{template_name}.html"
+
+        with open(path) as fp:
+            template = fp.read()
+
+            for key, value in context.items():
+                # {{ key }}
+                template = re.sub(r'{{\s*' + re.escape(key) + r'\s*}}', str(value), template)
+        
+        self.headers.append(('Content-Type', "text/html"))
+        self.text = template
+        self.status_code = "200 OK"
