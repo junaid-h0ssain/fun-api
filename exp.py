@@ -26,4 +26,15 @@ def update_user(req, res):
 def delete_user(req, res):
     res.send("User Deleted", "200")
 
+@funapi.routes("/users")
+class App:
 
+    def __init__(self) -> None:
+        pass
+
+    def get(req, res):
+        print(req.queries)
+        res.send("GET request to /users", "200")
+        
+
+    
