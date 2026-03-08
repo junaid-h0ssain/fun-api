@@ -29,8 +29,11 @@ def delete_user(req, res):
 @funapi.routes("/users")
 class App:
 
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def get(self, req, res):
+    def get(req, res):
         res.send("GET request to /users", "200")
+        
+
+    

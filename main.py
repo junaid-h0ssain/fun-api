@@ -1,17 +1,17 @@
 
-
-
+import inspect
 import types
 from typing import Any
 from response import Response
 from parse import parse
 
+SUPPORTED_METHODS = {"GET", "POST", "PUT", "DELETE"}
 
 class FunAPI:
-    def __init__(self, middleware: list = []) -> None:
-        self.routes = dict()
-        self.middleware = middleware
-        self.routes_middleware = dict()
+    def __init__(self, middleware: list | None = None) -> None:
+        self.route_handlers = {}
+        self.middleware = middleware or []
+        self.routes_middleware = {}
 
     def __call__(self, environ, start_response):
         response = Response()
@@ -20,7 +20,7 @@ class FunAPI:
             if isinstance(m, types.FunctionType):
                 m(response)
 
-        for path, handlerDict in self.routes.items():
+        for path, handlerDict in self.route_handlers.items():
             res = parse(path, environ["PATH_INFO"])
 
             for requestMethod, handler in handlerDict.items():
@@ -32,54 +32,62 @@ class FunAPI:
                             m(response)
 
                     handler(environ, response, **res.named)
-                    response.as_wsgi(start_response)
-                    return [response.text.encode()]
+                    return [response.as_wsgi(start_response)]
         
-        response.as_wsgi(start_response)
-        return [response.text.encode()]
-                
-    def common_handler(self, path=None, method=None, middleware=[]):
+        return [response.as_wsgi(start_response)]
+
+    def register_route(self, path=None, handler=None, method=None, middleware=None):
+        if handler is None or method is None:
+            return
+
+        path_name = path or f"/{handler.__name__}"
+
+        if path_name not in self.route_handlers:
+            self.route_handlers[path_name] = {}
+
+        self.route_handlers[path_name][method] = handler
+
+        if path_name not in self.routes_middleware:
+            self.routes_middleware[path_name] = {}
+
+        self.routes_middleware[path_name][method] = middleware or []
+
+    def common_handler(self, path=None, method=None, middleware=None):
         def wrapper(handler):
-            pathName = path or f"/{handler.__name__}"
-
-            if pathName not in self.routes: 
-                self.routes[pathName] = {}
-
-            self.routes[pathName][method] = handler
-
-            if pathName not in self.routes_middleware:
-                self.routes_middleware[pathName] = {}
-
-            self.routes_middleware[pathName][method] = middleware
-            
-            print(self.routes)
+            self.register_route(path=path, handler=handler, method=method, middleware=middleware)
+            return handler
 
         return wrapper
                 
 
-
-    def get(self, path=None, middleware=[]):
+    def get(self, path=None, middleware=None):
         return self.common_handler(path=path, method="GET", middleware=middleware)
     
-    def post(self, path=None, middleware=[]):
+    def post(self, path=None, middleware=None):
         return self.common_handler(path=path, method="POST", middleware=middleware)
     
-    def put(self, path=None, middleware=[]):
+    def put(self, path=None, middleware=None):
         return self.common_handler(path=path, method="PUT", middleware=middleware)
     
-    def delete(self, path=None, middleware=[]):
+    def delete(self, path=None, middleware=None):
         return self.common_handler(path=path, method="DELETE", middleware=middleware)
             
 
-    def routes(self, path=None,middleware=[]):
+    def routes(self, path=None, middleware=None):
         def wrapper(handler):
             if isinstance(handler, type):
-                pathName = path or f"/{handler.__name__.lower()}"
-                methods = ["GET", "POST", "PUT", "DELETE"]
+                members = inspect.getmembers(handler, lambda x: inspect.isfunction(x) and not (
+                    x.__name__.startswith("__") and x.__name__.endswith("__")
+                ) and x.__name__.upper() in SUPPORTED_METHODS)
 
-                for method in methods:
-                    if hasattr(handler, method.lower()):
-                        method_handler = getattr(handler, method.lower())
-                        self.common_handler(path=pathName, method=method, middleware=middleware)(method_handler)
+                for fn_name, fn_handler in members:
+                    self.register_route(
+                        path=path or f"/{handler.__name__}",
+                        handler=fn_handler,
+                        method=fn_name.upper(),
+                        middleware=middleware,
+                    )
+
+            return handler
 
         return wrapper            
