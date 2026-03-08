@@ -2,6 +2,7 @@
 import inspect
 import types
 from typing import Any
+from request import Request
 from response import Response
 from parse import parse
 
@@ -15,23 +16,24 @@ class FunAPI:
 
     def __call__(self, environ, start_response):
         response = Response()
+        request = Request(environ)
 
         for m in self.middleware:
             if isinstance(m, types.FunctionType):
                 m(response)
 
         for path, handlerDict in self.route_handlers.items():
-            res = parse(path, environ["PATH_INFO"])
+            res = parse(path, request.path_info)
 
             for requestMethod, handler in handlerDict.items():
-                if res and requestMethod == environ["REQUEST_METHOD"]:
+                if res and requestMethod == request.request_method:
                     
                     route_mw_list = self.routes_middleware[path][requestMethod]
                     for m in route_mw_list:
                         if isinstance(m, types.FunctionType):
                             m(response)
 
-                    handler(environ, response, **res.named)
+                    handler(request, response, **res.named)
                     return [response.as_wsgi(start_response)]
         
         return [response.as_wsgi(start_response)]

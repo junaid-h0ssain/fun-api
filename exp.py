@@ -33,6 +33,7 @@ class App:
         pass
 
     def get(req, res):
+        print(req.queries)
         res.send("GET request to /users", "200")
         
 
